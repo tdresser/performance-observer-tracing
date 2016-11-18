@@ -14,6 +14,15 @@
     }
     originalObserve.call(this, args);
   }
+
+  var originalProto = PerformanceObserver.prototype;
+  PerformanceObserver = function(listener) {
+    console.log("INTERCEPTED");
+    return new originalProto.constructor(listener);
+  }
+  PerformanceObserver.prototype = originalProto;
+
+
   performance.registerType = function(type) {
     observedTypes.add(type);
   }
