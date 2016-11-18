@@ -1,6 +1,7 @@
 (function() {
   var observedTypes = new Set();
   var observers = new Map();
+  var observerListeners = new WeakMap();
 
   var originalObserve = PerformanceObserver.prototype.observe;
   // TODO - what if we observe multiple times?
@@ -9,7 +10,6 @@
     for (type of args.entryTypes) {
       if (observedTypes.has(type)) {
         observers.set(this, args.entryTypes);
-        console.log(observers);
       }
     }
     originalObserve.call(this, args);
@@ -17,8 +17,9 @@
 
   var originalProto = PerformanceObserver.prototype;
   PerformanceObserver = function(listener) {
-    console.log("INTERCEPTED");
-    return new originalProto.constructor(listener);
+    var result = new originalProto.constructor(listener);
+    observerListeners.set(result, listener);
+    return result;
   }
   PerformanceObserver.prototype = originalProto;
 
@@ -26,13 +27,18 @@
   performance.registerType = function(type) {
     observedTypes.add(type);
   }
-  performance.emit = function(type, performanceEntry) {
+  performance.emit = function(performanceEntry) {
     observers.forEach(function(types, observer) {
-      console.log(types);
       for (observedType of types) {
-        if (observedType == type) {
-          console.log("FOO");
-          console.log(performanceEntry);
+        if (observedType == performanceEntry.entryType) {
+          var listener = observerListeners.get(observer);
+          var list = {};
+          list.prototype = PerformanceObserverEntryList;
+          // TODO - override other methods.
+          list.getEntries = function() {
+            return [performanceEntry];
+          }
+          listener.call(this, list);
         }
       }
     });
@@ -48,9 +54,9 @@ var observer = new PerformanceObserver(function(list) {
   {
     if (window.console) {
       console.log("Name: "        + perfEntries[i].name      +
-                  " Entry Type: " + perfEntries[i].entryType +
-                  " Start Time: " + perfEntries[i].startTime +
-                  " Duration: "   + perfEntries[i].duration  + "\n");
+                  " \nEntry Type: " + perfEntries[i].entryType +
+                  " \nStart Time: " + perfEntries[i].startTime +
+                  " \nDuration: "   + perfEntries[i].duration  + "\n");
     }
   }
   // maybe disconnect after processing the events.
@@ -64,4 +70,4 @@ performance.registerType("foo");
 observer.observe({entryTypes: ['resource', 'mark', 'measure', 'foo']});
 
 performance.mark("FOO");
-performance.emit("foo", {name:"TestPerformanceEntry"});
+performance.emit({entryType: "foo", name:"TestPerformanceEntry"});
