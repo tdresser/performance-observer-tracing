@@ -44,30 +44,3 @@
     });
   }
 })()
-
-
-var doneObservingEvents = false;
-
-var observer = new PerformanceObserver(function(list) {
-  var perfEntries = list.getEntries();
-  for (var i = 0; i < perfEntries.length; i++)
-  {
-    if (window.console) {
-      console.log("Name: "        + perfEntries[i].name      +
-                  " \nEntry Type: " + perfEntries[i].entryType +
-                  " \nStart Time: " + perfEntries[i].startTime +
-                  " \nDuration: "   + perfEntries[i].duration  + "\n");
-    }
-  }
-  // maybe disconnect after processing the events.
-  if (doneObservingEvents) {
-    observer.disconnect();
-  }
-});
-
-performance.registerType("foo");
-// subscribe to Resource-Timing and User-Timing events
-observer.observe({entryTypes: ['resource', 'mark', 'measure', 'foo']});
-
-performance.mark("FOO");
-performance.emit({entryType: "foo", name:"TestPerformanceEntry"});
