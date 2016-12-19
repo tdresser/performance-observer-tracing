@@ -3,6 +3,7 @@
 <head>
 <script src="style_mutation_event.js"></script>
 <script src="performance_timeline_emit.js"></script>
+<script src="frame_timestamps.js"></script>
 <script>
 window.addEventListener("load", function() {
     var box = document.getElementById("box");
@@ -12,6 +13,8 @@ window.addEventListener("load", function() {
 
     document.addEventListener("click", function() {
         console.log("click");
+        var now = performance.now();
+        while (performance.now() < now + 1000){}
     });
 });
 
@@ -29,8 +32,8 @@ var observer = new PerformanceObserver(function(list) {
 });
 
 performance.registerType("foo");
-// subscribe to Resource-Timing and User-Timing events
-observer.observe({entryTypes: ['resource', 'mark', 'measure', 'foo']});
+// subscribe to Resource-Timing and User-Timing events.
+observer.observe({entryTypes: ['resource', 'mark', 'measure', 'foo', 'longFrame']});
 
 performance.mark("FOO");
 performance.emit({entryType: "foo", name:"TestPerformanceEntry"});
