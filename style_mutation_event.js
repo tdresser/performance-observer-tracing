@@ -8,6 +8,9 @@
     window.requestAnimationFrame(checkStyleUpdates);
 
     observedElements.forEach(function(element) {
+      if (element == document) {
+        element = document.documentElement;
+      }
       var newStyleString = JSON.stringify(window.getComputedStyle(element));
       var previousStyleString = elementPreviousStyleStrings.get(element);
       if (previousStyleString == newStyleString) {

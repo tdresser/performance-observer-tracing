@@ -24,7 +24,7 @@ var observer = new PerformanceObserver(function(list) {
     for (var i = 0; i < perfEntries.length; i++)
     {
         if (window.console) {
-            console.log("Name: "        + perfEntries[i].name      +
+            console.log("Name: "          + perfEntries[i].name      +
                         " \nEntry Type: " + perfEntries[i].entryType +
                         " \nStart Time: " + perfEntries[i].startTime +
                         " \nDuration: "   + perfEntries[i].duration  + "\n");
@@ -34,7 +34,7 @@ var observer = new PerformanceObserver(function(list) {
 
 performance.registerType("foo");
 // subscribe to Resource-Timing and User-Timing events.
-observer.observe({entryTypes: ['resource', 'mark', 'measure', 'foo', 'longFrame']});
+observer.observe({entryTypes: ['resource', 'mark', 'measure', 'foo', 'longFrame', 'event']});
 
 performance.mark("FOO");
 performance.emit({entryType: "foo", name:"TestPerformanceEntry"});

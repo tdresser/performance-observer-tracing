@@ -4,7 +4,7 @@
     window.requestAnimationFrame(raf);
     if (time - lastRafTime > 50) {
       performance.emit({
-        name: "long Frame",
+        name: "Long Frame",
         entryType: "longFrame",
         duration: time - lastRafTime,
         startTime: lastRafTime
