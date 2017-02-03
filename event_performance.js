@@ -1,4 +1,6 @@
 (function eventPerformance() {
+  performance.registerType("event");
+
   var monitoredEventTypes = new Set();
   // Maps from event hashes to pending performance entries.
   var pendingEntries = new Map();
