@@ -1,9 +1,9 @@
 (function eventPerformance() {
   performance.registerType("event");
 
-  var monitoredEventTypes = new Set();
   // Maps from event hashes to pending performance entries.
-  var pendingEntries = new Map();
+  const pendingEntries = new Map();
+  let dispatchQueuedRequested = false;
 
   function eventHash(e) {
     // TODO - better hash function.
@@ -11,8 +11,8 @@
   }
 
   function addEntry(e, newEntryData) {
-    var hash = eventHash(e);
-    var entry = pendingEntries.get(hash);
+    const hash = eventHash(e);
+    const entry = pendingEntries.get(hash);
     if (!entry) {
       pendingEntries.set(hash, newEntryData);
       return newEntryData;
@@ -22,32 +22,31 @@
   }
 
   function dispatchQueuedEvents() {
-    for (let [hash, entry] of pendingEntries.entries()) {
-      entry.duration = entry.handlerEnd - entry.handlerStart;
+    for (const [hash, entry] of pendingEntries.entries()) {
+      entry.duration = entry.handlerEnd - entry.startTime;
       performance.emit(entry);
     }
     pendingEntries.clear();
+    dispatchQueuedRequested = false;
   }
 
-  var originalAddEventListener = EventTarget.prototype.addEventListener;
+  const originalAddEventListener = EventTarget.prototype.addEventListener;
   EventTarget.prototype.addEventListener = function(type, f, args) {
-    // Handle the document case separately, since we need to make sure our
-    // clean up logic runs after any other document level handlers.
-    if (!monitoredEventTypes.has(type))
-      monitoredEventTypes.add(type);
     originalAddEventListener.call(this, type, (e) => {
-      var start = performance.now();
+      const handlersStart = performance.now();
       f(e);
-      var entry = {
+      const entry = {
         name: type,
         entryType: 'event',
-        startTime: e.timeStamp,
-        handlerStart: start,
+        startTime: handlersStart,
+        eventDispatchTime: e.timeStamp,
         handlerEnd: performance.now()
       };
       addEntry(e, entry);
-      // TODO - only rAF if we don't already have a frame requested.
-      requestAnimationFrame(dispatchQueuedEvents);
+      if (!dispatchQueuedRequested) {
+        dispatchQueuedRequested = true;
+        requestAnimationFrame(dispatchQueuedEvents);
+      }
     }, args);
   };
 })();
