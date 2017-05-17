@@ -1,7 +1,7 @@
 (function frameTimestamps() {
   performance.registerType("longFrame");
 
-  var lastRafTime = 0;
+  let lastRafTime = 0;
   function raf(time) {
     window.requestAnimationFrame(raf);
     if (time - lastRafTime > 50) {

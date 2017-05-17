@@ -1,28 +1,33 @@
 (function() {
-  var observedTypes = new Set();
+  const observedTypes = new Set();
   // Map from entryType to list of observers.
-  var entryTypeObservers = new Map();
-  var observerListeners = new WeakMap();
+  const entryTypeObservers = new Map();
+  const observerListeners = new WeakMap();
 
-  var originalObserve = PerformanceObserver.prototype.observe;
+  const originalObserve = PerformanceObserver.prototype.observe;
   // TODO - what if we observe multiple times?
   // TODO - implement disconnect.
   PerformanceObserver.prototype.observe = function(args) {
+    let entryTypesToMonitor = args.entryTypes;
     for (type of args.entryTypes) {
       if (observedTypes.has(type)) {
-        var observersForType = entryTypeObservers.get(type);
+        let observersForType = entryTypeObservers.get(type);
         if (!observersForType)
           observersForType = [];
         observersForType.push(this);
         entryTypeObservers.set(type, observersForType);
+        entryTypesToMonitor = entryTypesToMonitor.filter(x => x != type);
       }
     }
-    originalObserve.call(this, args);
+    if (entryTypeObservers.length > 0) {
+      args.entryTypes = entryTypesToMonitor;
+      originalObserve.call(this, args);
+    }
   }
 
-  var originalProto = PerformanceObserver.prototype;
+  const originalProto = PerformanceObserver.prototype;
   PerformanceObserver = function(listener) {
-    var result = new originalProto.constructor(listener);
+    const result = new originalProto.constructor(listener);
     observerListeners.set(result, listener);
     return result;
   }
@@ -36,8 +41,8 @@
     for ([entryType, observers] of entryTypeObservers) {
       for (observer of observers) {
         if (entryType == performanceEntry.entryType) {
-          var listener = observerListeners.get(observer);
-          var list = {};
+          const listener = observerListeners.get(observer);
+          const list = {};
           list.prototype = PerformanceObserverEntryList;
           // TODO - override other methods.
           list.getEntries = function() {
