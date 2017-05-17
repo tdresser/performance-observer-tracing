@@ -1,6 +1,6 @@
 (function() {
   var observedTypes = new Set();
-  // Map from entryType to list of observers..
+  // Map from entryType to list of observers.
   var entryTypeObservers = new Map();
   var observerListeners = new WeakMap();
 
