@@ -41,6 +41,7 @@
     for ([entryType, observers] of entryTypeObservers) {
       for (observer of observers) {
         if (entryType == performanceEntry.entryType) {
+          console.log("DOING A THING " + performanceEntry);
           const listener = observerListeners.get(observer);
           const list = {};
           list.prototype = PerformanceObserverEntryList;

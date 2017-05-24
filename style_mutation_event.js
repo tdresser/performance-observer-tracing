@@ -1,11 +1,11 @@
-// To use: element.addEventListener("styleupdate").
 (function() {
-  const elementPreviousStyleStrings = new WeakMap();
-  // TODO - this leaks.
-  const observedElements = [];
+  performance.registerType("styleupdate");
 
-  function checkStyleUpdates() {
+  const elementPreviousStyleStrings = new WeakMap();
+  function checkStyleUpdates(now) {
     window.requestAnimationFrame(checkStyleUpdates);
+
+    const observedElements = document.querySelectorAll('[report-styleupdate]');
 
     observedElements.forEach(function(element) {
       if (element == document) {
@@ -17,16 +17,15 @@
         return;
       }
       elementPreviousStyleStrings.set(element, newStyleString);
-      const event = new CustomEvent('styleupdate', {});
-      element.dispatchEvent(event);
+
+      const entry = {
+        name: element.id,
+        entryType: 'styleupdate',
+        startTime: now,
+        duration: 0,
+      };
+      performance.emit(entry);
     })
   }
   window.requestAnimationFrame(checkStyleUpdates);
-
-  const originalAddEventListener = EventTarget.prototype.addEventListener;
-  EventTarget.prototype.addEventListener = function(type, method, args) {
-    if (type == "styleupdate")
-      observedElements.push(this);
-    originalAddEventListener.call(this, type, method, args);
-  }
 })();
