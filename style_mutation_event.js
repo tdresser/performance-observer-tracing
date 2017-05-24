@@ -1,4 +1,5 @@
 (function() {
+  'use strict';
   performance.registerType("styleupdate");
 
   const elementPreviousStyleStrings = new WeakMap();

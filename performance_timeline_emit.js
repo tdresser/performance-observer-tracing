@@ -1,4 +1,5 @@
 (function() {
+  'use strict';
   const observedTypes = new Set();
   // Map from entryType to list of observers.
   const entryTypeObservers = new Map();
@@ -8,19 +9,24 @@
   // TODO - what if we observe multiple times?
   // TODO - implement disconnect.
   PerformanceObserver.prototype.observe = function(args) {
-    let entryTypesToMonitor = args.entryTypes;
-    for (type of args.entryTypes) {
+    let nativeEntryTypes = args.entryTypes;
+    for (const type of args.entryTypes) {
       if (observedTypes.has(type)) {
         let observersForType = entryTypeObservers.get(type);
         if (!observersForType)
           observersForType = [];
         observersForType.push(this);
+
+        if (type == "longFrame") {
+          console.log("SETTING TO ");
+          console.log(observersForType);
+        }
         entryTypeObservers.set(type, observersForType);
-        entryTypesToMonitor = entryTypesToMonitor.filter(x => x != type);
+        nativeEntryTypes = nativeEntryTypes.filter(x => x != type);
       }
     }
     if (entryTypeObservers.length > 0) {
-      args.entryTypes = entryTypesToMonitor;
+      args.entryTypes = nativeEntryTypes;
       originalObserve.call(this, args);
     }
   }
@@ -40,10 +46,11 @@
   performance.registerType = function(type) {
     observedTypes.add(type);
   }
+
   performance.emit = function(performanceEntry) {
-    for ([entryType, observers] of entryTypeObservers) {
-      for (observer of observers) {
-        if (entryType == performanceEntry.entryType) {
+    for (const [entryType, observers] of entryTypeObservers) {
+      if (entryType == performanceEntry.entryType) {
+        for (const observer of observers) {
           const listener = observerListeners.get(observer);
           const list = {};
           list.prototype = PerformanceObserverEntryList;
@@ -51,6 +58,7 @@
           list.getEntries = function() {
             return [performanceEntry];
           }
+
           listener.call(this, list);
         }
       }

@@ -1,9 +1,18 @@
 (function eventPerformance() {
+  'use strict';
   performance.registerType("event");
 
-  // Maps from event hashes to pending performance entries.
+  // Maps from event hashes to pending performance entries. TODO - use a better
+  // data structure, sorted on timestamp.
   const pendingEntries = new Map();
-  let dispatchQueuedRequested = false;
+
+  const frameObserver = new PerformanceObserver((list) => {
+    for (const entry of list.getEntries()) {
+      console.log(entry);
+    }
+    dispatchQueuedEvents();
+  });
+  frameObserver.observe({entryTypes:['longFrame']});
 
   function eventHash(e) {
     // TODO - better hash function.
@@ -27,7 +36,6 @@
       performance.emit(entry);
     }
     pendingEntries.clear();
-    dispatchQueuedRequested = false;
   }
 
   const originalAddEventListener = EventTarget.prototype.addEventListener;
@@ -43,10 +51,6 @@
         handlerEnd: performance.now()
       };
       addEntry(e, entry);
-      if (!dispatchQueuedRequested) {
-        dispatchQueuedRequested = true;
-        requestAnimationFrame(dispatchQueuedEvents);
-      }
     }, args);
   };
 })();

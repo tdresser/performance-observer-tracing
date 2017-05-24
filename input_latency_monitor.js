@@ -1,4 +1,5 @@
 (function () {
+  'use strict';
   function handleEventEntry(entry) {
     console.log("Name: "          + entry.name      +
                 " \nEntry Type: " + entry.entryType +
@@ -16,8 +17,7 @@
   }
 
   const inputObserver = new PerformanceObserver((list) => {
-    const perfEntries = list.getEntries();
-    for (entry of perfEntries) {
+    for (const entry of list.getEntries()) {
       switch(entry.entryType) {
       case "event":
         handleEventEntry(entry);

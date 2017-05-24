@@ -19,10 +19,12 @@ let lastEntryTime = null;
 
 var observer = new PerformanceObserver(function(list) {
   for (const entry of list.getEntries()) {
-    if (lastEntryTime) {
-      console.assert(entry.startTime > lastEntryTime);
+    if (entry.entryType == 'event' || entry.entryType == 'longFrame') {
+      if (lastEntryTime) {
+        console.assert(entry.startTime > lastEntryTime);
+      }
+      lastEntryTime = entry.startTime;
     }
-    lastEntryTime = entry.startTime;
     console.log("Name: "          + entry.name      +
                 " \nEntry Type: " + entry.entryType +
                 " \nStart Time: " + entry.startTime +

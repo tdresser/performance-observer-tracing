@@ -1,4 +1,5 @@
 (function frameTimestamps() {
+  'use strict';
   performance.registerType("longFrame");
 
   let lastRafTime = 0;
