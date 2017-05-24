@@ -15,25 +15,22 @@ window.addEventListener("load", function() {
   });
 });
 
+let lastEntryTime = null;
+
 var observer = new PerformanceObserver(function(list) {
-  const perfEntries = list.getEntries();
-  for (let i = 0; i < perfEntries.length; i++)
-    {
-      if (window.console) {
-        console.log("Name: "          + perfEntries[i].name      +
-                    " \nEntry Type: " + perfEntries[i].entryType +
-                    " \nStart Time: " + perfEntries[i].startTime +
-                    " \nDuration: "   + perfEntries[i].duration  + "\n");
-      }
+  for (const entry of list.getEntries()) {
+    if (lastEntryTime) {
+      console.assert(entry.startTime > lastEntryTime);
     }
+    lastEntryTime = entry.startTime;
+    console.log("Name: "          + entry.name      +
+                " \nEntry Type: " + entry.entryType +
+                " \nStart Time: " + entry.startTime +
+                " \nDuration: "   + entry.duration  + "\n");
+  }
 });
 
-performance.registerType("foo");
-// subscribe to Resource-Timing and User-Timing events.
 observer.observe({entryTypes: ['resource', 'mark', 'measure', 'foo', 'longFrame', 'event', 'styleupdate']});
-
-performance.mark("FOO");
-performance.emit({entryType: "foo", name:"TestPerformanceEntry"});
 
 </script>
 <style>

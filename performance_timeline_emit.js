@@ -33,7 +33,10 @@
   }
   PerformanceObserver.prototype = originalProto;
 
-  // Register a type before emitting any entries of that type.
+  // Register a type before emitting any entries of that type. This is used to
+  // make it easy to distinguish native event types from custom
+  // ones. https://github.com/w3c/performance-timeline/issues/77 would make this
+  // unnecessary.
   performance.registerType = function(type) {
     observedTypes.add(type);
   }
@@ -41,7 +44,6 @@
     for ([entryType, observers] of entryTypeObservers) {
       for (observer of observers) {
         if (entryType == performanceEntry.entryType) {
-          console.log("DOING A THING " + performanceEntry);
           const listener = observerListeners.get(observer);
           const list = {};
           list.prototype = PerformanceObserverEntryList;
