@@ -13,14 +13,12 @@
     for (const type of args.entryTypes) {
       if (observedTypes.has(type)) {
         let observersForType = entryTypeObservers.get(type);
-        if (!observersForType)
-          observersForType = [];
-        observersForType.push(this);
 
-        if (type == "longFrame") {
-          console.log("SETTING TO ");
-          console.log(observersForType);
+        if (!observersForType) {
+          observersForType = [];
         }
+
+        observersForType.push(this);
         entryTypeObservers.set(type, observersForType);
         nativeEntryTypes = nativeEntryTypes.filter(x => x != type);
       }
