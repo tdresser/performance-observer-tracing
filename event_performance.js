@@ -11,20 +11,17 @@
       if (entry.entryType == "longFrame") {
         console.log(entry);
         for (const [hash, eventEntry] of pendingEntries.entries()) {
-          console.log("contemplating entry");
-          console.log(entry);
-          console.log(eventEntry);
-          if (eventEntry.startTime < entry.startTime) {
+          if (eventEntry.handlerEnd < entry.startTime) {
             // Event was before long frame. We won't dispatch this entry.
-            pendingEntries.delete(hash);
             continue;
           } else if (entry.startTime + entry.duration < eventEntry.startTime) {
             // Event was after long frame. Wait for the next long frame.
             continue;
           }
+
           // Event was during long frame, dispatch it.
-          entry.duration = entry.handlerEnd - entry.startTime;
-          performance.emit(entry);
+          eventEntry.duration = eventEntry.handlerEnd - eventEntry.startTime;
+          performance.emit(eventEntry);
           pendingEntries.delete(hash);
         }
       }
