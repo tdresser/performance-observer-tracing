@@ -2,6 +2,9 @@
   'use strict';
   performance.registerType("longFrame");
 
+  // TODO - don't dispatch long frames if we're in the background, as rAF will
+  // be throttled.
+
   let lastRafTime = 0;
   function raf(time) {
     window.requestAnimationFrame(raf);

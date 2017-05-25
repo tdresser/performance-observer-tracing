@@ -9,7 +9,6 @@
   const frameObserver = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
       if (entry.entryType == "longFrame") {
-        console.log(entry);
         for (const [hash, eventEntry] of pendingEntries.entries()) {
           if (eventEntry.handlerEnd < entry.startTime) {
             // Event was before long frame. We won't dispatch this entry.

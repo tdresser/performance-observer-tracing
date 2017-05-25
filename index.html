@@ -27,10 +27,6 @@ var observer = new PerformanceObserver(function(list) {
       }
       lastEntryTime = entry.startTime;
     }
-    console.log("Name: "          + entry.name      +
-                " \nEntry Type: " + entry.entryType +
-                " \nStart Time: " + entry.startTime +
-                " \nDuration: "   + entry.duration  + "\n");
   }
 });
 

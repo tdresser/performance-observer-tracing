@@ -16,6 +16,14 @@
                 " \nDuration: "   + entry.duration  + "\n");
   }
 
+  function handleStyleUpdateEntry(entry) {
+    console.log("Style Update " +
+                " \nName: "          + entry.name      +
+                " \nEntry Type: " + entry.entryType +
+                " \nStart Time: " + entry.startTime +
+                " \nDuration: "   + entry.duration  + "\n");
+  }
+
   const inputObserver = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
       switch(entry.entryType) {
@@ -25,10 +33,13 @@
       case "longFrame":
         handleLongFrameEntry(entry);
         break;
+      case "styleupdate":
+        handleStyleUpdateEntry(entry);
+        break;
       default:
         throw new Error("unhandled entry type " + entry.entryType);
       }
     }
   })
-  inputObserver.observe({entryTypes: ['event', 'longFrame']});
+  inputObserver.observe({entryTypes: ['event', 'longFrame', 'styleupdate']});
 })();
