@@ -17,21 +17,6 @@ window.addEventListener("load", function() {
   document.addEventListener("mousemove", () => {});
 });
 
-let lastEntryTime = null;
-
-var observer = new PerformanceObserver(function(list) {
-  for (const entry of list.getEntries()) {
-    if (entry.entryType == 'event' || entry.entryType == 'longFrame') {
-      if (lastEntryTime) {
-        console.assert(entry.startTime > lastEntryTime);
-      }
-      lastEntryTime = entry.startTime;
-    }
-  }
-});
-
-observer.observe({entryTypes: ['resource', 'mark', 'measure', 'foo', 'longFrame', 'event', 'styleupdate']});
-
 </script>
 <style>
 #box {
