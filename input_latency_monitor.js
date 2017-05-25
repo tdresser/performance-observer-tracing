@@ -13,6 +13,9 @@
     console.log("Name: "          + entry.name      +
                 " \nEntry Type: " + entry.entryType +
                 " \nStart Time: " + entry.startTime +
+                " \nHandlers Start Time: " + entry.handlersStartTime +
+                " \nHandlers End Time: " + entry.handlersEndTime +
+                " \nFrame Begin Time: " + entry.frameBeginTime +
                 " \nDuration: "   + entry.duration  + "\n");
   }
 
