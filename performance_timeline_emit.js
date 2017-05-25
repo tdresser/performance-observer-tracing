@@ -1,30 +1,50 @@
 (function() {
   'use strict';
-  const observedTypes = new Set();
   // Map from entryType to list of observers.
   const entryTypeObservers = new Map();
   const observerListeners = new WeakMap();
 
   const originalObserve = PerformanceObserver.prototype.observe;
+
+  // Given a list of entry types, returns two lists, of valid and invalid entry
+  // types.
+  function splitValidEntryTypes(entryTypes) {
+    const r = {
+      valid: [],
+      invalid: []
+    }
+
+    for (const entryType of entryTypes) {
+      try {
+        originalObserve.call(
+          new PerformanceObserver(()=>{}), {entryTypes: [entryType]});
+        r.valid.push(entryType);
+      } catch(err) {
+        r.invalid.push(entryType);
+      }
+    }
+
+    return r;
+  }
+
+
   // TODO - what if we observe multiple times?
   // TODO - implement disconnect.
   PerformanceObserver.prototype.observe = function(args) {
-    let nativeEntryTypes = args.entryTypes;
-    for (const type of args.entryTypes) {
-      if (observedTypes.has(type)) {
-        let observersForType = entryTypeObservers.get(type);
+    let {valid, invalid} = splitValidEntryTypes(args.entryTypes);
+    for (const type of invalid) {
+      let observersForType = entryTypeObservers.get(type);
 
-        if (!observersForType) {
-          observersForType = [];
-        }
-
-        observersForType.push(this);
-        entryTypeObservers.set(type, observersForType);
-        nativeEntryTypes = nativeEntryTypes.filter(x => x != type);
+      if (!observersForType) {
+        observersForType = [];
       }
+
+      observersForType.push(this);
+      entryTypeObservers.set(type, observersForType);
     }
-    if (entryTypeObservers.length > 0) {
-      args.entryTypes = nativeEntryTypes;
+
+    if (valid.length > 0) {
+      args.entryTypes = valid;
       originalObserve.call(this, args);
     }
   }
@@ -36,14 +56,6 @@
     return result;
   }
   PerformanceObserver.prototype = originalProto;
-
-  // Register a type before emitting any entries of that type. This is used to
-  // make it easy to distinguish native event types from custom
-  // ones. https://github.com/w3c/performance-timeline/issues/77 would make this
-  // unnecessary.
-  performance.registerType = function(type) {
-    observedTypes.add(type);
-  }
 
   performance.emit = function(performanceEntry) {
     for (const [entryType, observers] of entryTypeObservers) {

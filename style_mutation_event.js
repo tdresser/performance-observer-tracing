@@ -1,7 +1,5 @@
 (function() {
   'use strict';
-  performance.registerType("styleupdate");
-
   const elementPreviousStyleStrings = new WeakMap();
   function checkStyleUpdates(now) {
     window.requestAnimationFrame(checkStyleUpdates);

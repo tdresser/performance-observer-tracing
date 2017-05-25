@@ -1,6 +1,5 @@
 (function eventPerformance() {
   'use strict';
-  performance.registerType("event");
 
   // Maps from event hashes to pending performance entries. TODO - use a better
   // data structure, sorted on timestamp.

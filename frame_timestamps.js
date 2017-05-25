@@ -1,6 +1,5 @@
 (function frameTimestamps() {
   'use strict';
-  performance.registerType("longFrame");
   const originalRequestAnimationFrame = requestAnimationFrame;
 
   let lastFrameStartTime;
@@ -14,6 +13,7 @@
           const frameStartTime = performance.now();
           pendingEntry.startTime = lastFrameStartTime;
           pendingEntry.duration = frameStartTime - lastFrameStartTime;
+
           // TODO - don't dispatch long frames if we're in the background, as rAF will
           // be throttled.
           if (pendingEntry.duration > 50) {
@@ -24,12 +24,13 @@
         lastFrameStartTime = performance.now();
       }, 0);
 
+      const handlersStartTime = performance.now();
+      f(queueingTime);
+
       if (!lastFrameStartTime) {
         return;
       }
 
-      const handlersStartTime = performance.now();
-      f(queueingTime);
       if(!pendingEntry) {
         pendingEntry = {
           name: "Long Frame",
@@ -47,7 +48,7 @@
   // We need an empty rAF loop running at all times if there's no rAF animation
   // in the page.
   function raf() {
-    requestAnimationFrame(raf);
+    window.requestAnimationFrame(raf);
   }
   window.requestAnimationFrame(raf);
 
