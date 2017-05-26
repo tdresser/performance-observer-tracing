@@ -17,6 +17,17 @@ window.addEventListener("load", function() {
   document.addEventListener("mousemove", () => {});
 });
 
+function fetchResource() {
+  function dummy() {
+  }
+
+  var oReq = new XMLHttpRequest();
+  //oReq.onload = reqListener;
+//  oReq.onerror = reqError;
+  oReq.open('get', 'http://thecatapi.com/api/images/get?format=src&type=gif', true);
+  oReq.send();
+}
+
 </script>
 <style>
 #box {
@@ -33,6 +44,7 @@ window.addEventListener("load", function() {
 </head>
 <body>
 <div id="box" report-styleupdate></div>
-<div id="button"> <a href="#" onclick="downloadTrace()">Download Trace</a> </div>
+<div class="button"> <a href="#" onclick="fetchResource()">Fetch Resource</a> </div>
+<div class="button"> <a href="#" onclick="downloadTrace()">Download Trace</a> </div>
 </body>
 </html>

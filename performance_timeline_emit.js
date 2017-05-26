@@ -58,6 +58,7 @@
   PerformanceObserver.prototype = originalProto;
 
   performance.emit = function(performanceEntry) {
+    performanceEntry.prototype = PerformanceEntry;
     for (const [entryType, observers] of entryTypeObservers) {
       if (entryType == performanceEntry.entryType) {
         for (const observer of observers) {
