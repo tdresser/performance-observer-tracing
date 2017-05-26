@@ -17,9 +17,8 @@
   const currentTrace = [];
 
   let id = 0;
-  let bind_id = 0;
 
-  function handleEventEntry(entry, bind_id) {
+  function handleEventEntry(entry) {
     const traceEvent = {
       name: "event queueing time::" + entry.name,
       cat: entry.entryType,
@@ -38,8 +37,6 @@
       ts: entry.startTime * 1000,
       ph: "e",
       id: "0x" + id.toString(16),
-      flow_out:true,
-      bind_id: "0x" + bind_id.toString(16),
     };
 
     id++;
@@ -53,13 +50,10 @@
         cat: entry.entryType,
         pid:"Main",
         ts: entry.startTime * 1000,
-        flow_in: true,
       };
 
       if (entry.entryType == 'event') {
-        handleEventEntry(entry, bind_id);
-        traceEvent.bind_id = "0x" + bind_id.toString(16),
-        bind_id++;
+        handleEventEntry(entry);
       }
 
       if (entry.entryType == 'resource') {
@@ -94,7 +88,6 @@
         for (let key in traceEvent) {
           traceEventEnd[key] = traceEvent[key];
         }
-        traceEventEnd.bind_id = undefined;
         traceEventEnd.ph = "e";
         traceEventEnd.ts = traceEvent.ts + entry.duration * 1000;
         console.log(traceEventEnd);
