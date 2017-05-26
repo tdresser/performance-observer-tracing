@@ -1,4 +1,4 @@
-(function() {
+(function () {
   'use strict';
   const elementPreviousStyleStrings = new WeakMap();
   function checkStyleUpdates(now) {

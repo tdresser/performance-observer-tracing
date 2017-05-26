@@ -1,4 +1,4 @@
-(function frameTimestamps() {
+(function () {
   'use strict';
   const originalRequestAnimationFrame = requestAnimationFrame;
 
@@ -33,8 +33,9 @@
 
       if(!pendingEntry) {
         pendingEntry = {
-          name: "Long Frame",
-          entryType: 'longFrame',
+          name: 'frame',
+          entryType: 'frame',
+          url: window.location.href,
           handlersStartTime: handlersStartTime,
           frameBeginTime: queueingTime,
         };

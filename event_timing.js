@@ -1,4 +1,4 @@
-(function eventPerformance() {
+(function () {
   'use strict';
 
   // Maps from event hashes to pending performance entries. TODO - use a better
@@ -7,7 +7,7 @@
 
   const frameObserver = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
-      if (entry.entryType == "longFrame") {
+      if (entry.entryType == "frame") {
         for (const [hash, eventEntry] of pendingEntries.entries()) {
           if (eventEntry.handlerEnd < entry.startTime) {
             // Event was before long frame. We won't dispatch this entry.
@@ -26,7 +26,7 @@
     }
   });
 
-  frameObserver.observe({entryTypes:['longFrame']});
+  frameObserver.observe({entryTypes:['frame']});
 
   function eventHash(e) {
     // TODO - better hash function.

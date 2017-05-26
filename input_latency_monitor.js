@@ -1,48 +1,35 @@
 (function () {
   'use strict';
-  function handleEventEntry(entry) {
-    console.log("Name: "          + entry.name      +
-                " \nEntry Type: " + entry.entryType +
-                " \nStart Time: " + entry.startTime +
-                " \nEvent Dispatch Time: " + entry.eventDispatchTime +
-                " \nHandler End: " + entry.handlerEnd +
-                " \nDuration: "   + entry.duration  + "\n");
-  }
 
-  function handleLongFrameEntry(entry) {
-    console.log("Name: "          + entry.name      +
-                " \nEntry Type: " + entry.entryType +
-                " \nStart Time: " + entry.startTime +
-                " \nHandlers Start Time: " + entry.handlersStartTime +
-                " \nHandlers End Time: " + entry.handlersEndTime +
-                " \nFrame Begin Time: " + entry.frameBeginTime +
-                " \nDuration: "   + entry.duration  + "\n");
-  }
+  let pendingEntries = [];
 
-  function handleStyleUpdateEntry(entry) {
-    console.log("Style Update " +
-                " \nName: "          + entry.name      +
-                " \nEntry Type: " + entry.entryType +
-                " \nStart Time: " + entry.startTime +
-                " \nDuration: "   + entry.duration  + "\n");
+  function rAF() {
+    requestAnimationFrame(rAF);
+    let frameEntry;
+    const nonFrameEntries = [];
+    for (const entry of pendingEntries) {
+      if (entry.entryType == "frame") {
+        frameEntry = entry;
+      } else {
+        nonFrameEntries.push(entry);
+      }
+    }
+
+    if (frameEntry) {
+      frameEntry.withinFrameEntries = nonFrameEntries;
+      console.log(JSON.stringify(frameEntry, null, 2));
+    } else if (nonFrameEntries.length > 0) {
+      console.log(JSON.stringify(nonFrameEntries, null, 2));
+    }
+
+    pendingEntries = [];
   }
+  rAF();
 
   const inputObserver = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
-      switch(entry.entryType) {
-      case "event":
-        handleEventEntry(entry);
-        break;
-      case "longFrame":
-        handleLongFrameEntry(entry);
-        break;
-      case "styleupdate":
-        handleStyleUpdateEntry(entry);
-        break;
-      default:
-        throw new Error("unhandled entry type " + entry.entryType);
-      }
+      pendingEntries.push(entry);
     }
   })
-  inputObserver.observe({entryTypes: ['event', 'longFrame', 'styleupdate']});
+  inputObserver.observe({entryTypes: ['event', 'frame', 'styleupdate']});
 })();

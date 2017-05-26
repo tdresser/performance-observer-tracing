@@ -1,4 +1,4 @@
-(function() {
+(function () {
   'use strict';
   // Map from entryType to list of observers.
   const entryTypeObservers = new Map();
