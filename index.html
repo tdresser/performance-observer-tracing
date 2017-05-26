@@ -6,11 +6,12 @@
 <script src="frame_timing.js"></script>
 <script src="event_timing.js"></script>
 <script src="input_latency_monitor.js"></script>
+<script src="performance_observer_tracing.js"></script>
 <script>
 window.addEventListener("load", function() {
   document.addEventListener("click", function() {
     const now = performance.now();
-    while (performance.now() < now + 1000){}
+    while (performance.now() < now + 50){}
   });
 
   document.addEventListener("mousemove", () => {});
@@ -27,10 +28,11 @@ window.addEventListener("load", function() {
 #box:hover {
   background-color:red;
 }
+
 </style>
 </head>
 <body>
 <div id="box" report-styleupdate></div>
-<!-- https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/edit# -->
+<div id="button"> <a href="#" onclick="downloadTrace()">Download Trace</a> </div>
 </body>
 </html>
