@@ -16,34 +16,56 @@
 
   const currentTrace = [];
 
-  function handleEventEntry(entry) {
+  let id = 0;
+  let bind_id = 0;
+
+  function handleEventEntry(entry, bind_id) {
     const traceEvent = {
       name: "event queueing time::" + entry.name,
       cat: entry.entryType,
       pid:"Input",
-      ts: entry.eventDispatchTime,
-      dur: entry.startTime,
-      ph: "X",
+      ts: entry.eventDispatchTime * 1000,
+      ph: "b",
+      id: "0x" + id.toString(16),
     };
 
     currentTrace.push(traceEvent);
-  }
 
-  let id = 0;
+    const traceEventEnd = {
+      name: "event queueing time::" + entry.name,
+      cat: entry.entryType,
+      pid:"Input",
+      ts: entry.startTime * 1000,
+      ph: "e",
+      id: "0x" + id.toString(16),
+      flow_out:true,
+      bind_id: "0x" + bind_id.toString(16),
+    };
+
+    id++;
+    currentTrace.push(traceEventEnd);
+  }
 
   const observer = new PerformanceObserver((list) => {
     for (let entry of list.getEntries()) {
-      if (entry.entryType == 'event') {
-        handleEventEntry(entry);
-      }
-
       const traceEvent = {
         name: entry.entryType + "::" + entry.name,
         cat: entry.entryType,
         pid:"Main",
-        ts: entry.startTime,
-        dur: entry.duration
+        ts: entry.startTime * 1000,
+        flow_in: true,
       };
+
+      if (entry.entryType == 'event') {
+        handleEventEntry(entry, bind_id);
+        traceEvent.bind_id = "0x" + bind_id.toString(16),
+        bind_id++;
+      }
+
+      if (entry.entryType == 'resource') {
+        entry.url = traceEvent.name;
+        traceEvent.name = 'resource';
+      }
 
       if (entry.duration == 0) {
         traceEvent.ph = "n";
@@ -52,7 +74,8 @@
         traceEvent.ph = "b";
       }
 
-      traceEvent.id = id;
+      traceEvent.id = "0x" + id.toString(16);
+      id++;
 
       let args = {};
       for (let key in entry) {
@@ -71,8 +94,9 @@
         for (let key in traceEvent) {
           traceEventEnd[key] = traceEvent[key];
         }
+        traceEventEnd.bind_id = undefined;
         traceEventEnd.ph = "e";
-        traceEventEnd.ts = traceEventEnd.ts + traceEventEnd.dur;
+        traceEventEnd.ts = traceEvent.ts + entry.duration * 1000;
         console.log(traceEventEnd);
         currentTrace.push(traceEventEnd);
       }
