@@ -19,42 +19,45 @@
   let id = 0;
   let bind_id = 0;
 
-  function handleEventEntry(entry) {
+  function handleEventEntry(entry, primaryTraceEvent) {
+    console.log("FOO");
+    const queueingTimeName = entry.name + '::event queueing time';
+    const queueingTimePid = 'Input::' + entry.name + '::Queueing';
     const flowEventStart = {
-      name: entry.name + '::event queueing time',
-      ph: "X",
+      name: queueingTimeName,
+      ph: 'X',
       dur: 0,
-      pid: "Input",
+      pid: queueingTimePid,
       cat: entry.entryType,
-      bind_id: "0x" + bind_id.toString(16),
+      bind_id: '0x' + bind_id.toString(16),
       ts: entry.startTime * 1000,
       flow_out: true,
     };
 
     const flowEventEnd = {
-      name: entry.name + '::' + entry.entryType,
-      ph: "X",
+      name: primaryTraceEvent.name,
+      ph: 'X',
       dur: 0,
-      pid: "Input",
+      pid: primaryTraceEvent.pid,
       cat: entry.entryType,
-      bind_id: "0x" + bind_id.toString(16),
+      bind_id: '0x' + bind_id.toString(16),
       ts: entry.eventHandlersEnd * 1000,
       flow_in: true,
     };
 
     const traceEvent = {
-      name: entry.name + '::event queueing time',
+      name: queueingTimeName,
       cat: entry.entryType,
-      pid:'Input',
+      pid: queueingTimePid,
       ts: entry.startTime * 1000,
       ph: 'b',
       id: '0x' + id.toString(16),
     };
 
     const traceEventEnd = {
-      name: entry.name + '::event queueing time',
+      name: queueingTimeName,
       cat: entry.entryType,
-      pid:'Input',
+      pid: queueingTimePid,
       ts: entry.eventHandlersBegin * 1000,
       ph: 'e',
       id: '0x' + id.toString(16),
@@ -66,6 +69,8 @@
     currentTrace.push(flowEventEnd);
     currentTrace.push(traceEvent);
     currentTrace.push(traceEventEnd);
+
+    console.log(traceEvent);
   }
 
   const observer = new PerformanceObserver((list) => {
@@ -84,19 +89,20 @@
         traceEvent.pid = 'Measures';
         break;
       case 'event':
-        traceEvent.pid = 'Input';
+        traceEvent.pid = 'Input::' + entry.name;
         break;
       default:
         traceEvent.pid = 'Primary';
       }
 
       if (entry.entryType == 'event') {
-        handleEventEntry(entry);
         // We display the queueing time in handleEventEntry, remove it from the
         // primary event slice.
         traceEvent.ts = entry.eventHandlersBegin * 1000;
         // Use entry name first to sort event types next to their queueing times.
         traceEvent.name = entry.name + '::' + entry.entryType;
+
+        handleEventEntry(entry, traceEvent);
       }
 
       if (entry.entryType == 'resource') {
