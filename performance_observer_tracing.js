@@ -45,32 +45,9 @@
       flow_in: true,
     };
 
-    const traceEvent = {
-      name: queueingTimeName,
-      cat: entry.entryType,
-      pid: queueingTimePid,
-      ts: entry.startTime * 1000,
-      ph: 'b',
-      id: '0x' + id.toString(16),
-    };
-
-    const traceEventEnd = {
-      name: queueingTimeName,
-      cat: entry.entryType,
-      pid: queueingTimePid,
-      ts: entry.eventHandlersBegin * 1000,
-      ph: 'e',
-      id: '0x' + id.toString(16),
-    };
-
-    id++;
     bind_id++;
     currentTrace.push(flowEventStart);
     currentTrace.push(flowEventEnd);
-    currentTrace.push(traceEvent);
-    currentTrace.push(traceEventEnd);
-
-    console.log(traceEvent);
   }
 
   const observer = new PerformanceObserver((list) => {
