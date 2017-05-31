@@ -1,8 +1,0 @@
-[ {"name": "Asub", "cat": "PERF", "ph": "B", "pid": 22630, "tid": 22630, "ts": 869},
-  {"name": "Asub", "cat": "PERF", "ph": "E", "pid": 22630, "tid": 22630, "ts": 883},
-  {"name": "B", "ph": "B", "pid": "test", "ts": 920},
-  {"name": "C", "ph": "B", "pid": "test", "ts": 929},
-  {"name": "C", "ph": "E", "pid": "test", "ts": 933},
-  {"name": "B", "ph": "E", "pid": "test", "ts": 940},
-  {"name": "D", "ph": "X", "pid": "test", "tid": 22631, "ts": 935, "dur": 10},
-  {"name": "Instant", "ph": "i", "pid": "test", "ts": 935, "s":"g"}]

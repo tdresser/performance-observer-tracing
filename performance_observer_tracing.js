@@ -20,7 +20,6 @@
   let bind_id = 0;
 
   function handleEventEntry(entry, primaryTraceEvent) {
-    console.log("FOO");
     const queueingTimeName = entry.name + '::event queueing time';
     const queueingTimePid = 'Input::' + entry.name + '::Queueing';
     const flowEventStart = {
@@ -41,7 +40,7 @@
       pid: primaryTraceEvent.pid,
       cat: entry.entryType,
       bind_id: '0x' + bind_id.toString(16),
-      ts: entry.eventHandlersEnd * 1000,
+      ts: entry.eventHandlersBegin * 1000,
       flow_in: true,
     };
 
@@ -76,6 +75,7 @@
         // We display the queueing time in handleEventEntry, remove it from the
         // primary event slice.
         traceEvent.ts = entry.eventHandlersBegin * 1000;
+        entry.duration = entry.eventHandlersEnd - entry.eventHandlersBegin;
         // Use entry name first to sort event types next to their queueing times.
         traceEvent.name = entry.name + '::' + entry.entryType;
 
