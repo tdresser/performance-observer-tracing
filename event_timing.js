@@ -18,7 +18,6 @@
           }
 
           // Event was during long frame, dispatch it.
-          eventEntry.duration = eventEntry.handlerEnd - eventEntry.startTime;
           performance.emit(eventEntry);
           pendingEntries.delete(hash);
         }
@@ -33,30 +32,34 @@
     return e.timeStamp + e.type;
   }
 
-  function addEntry(e, newEntryData) {
+  function addOrCoalesceEntry(e, newEntryData) {
     const hash = eventHash(e);
     const entry = pendingEntries.get(hash);
     if (!entry) {
       pendingEntries.set(hash, newEntryData);
       return newEntryData;
     }
-    entry.handlerEnd = newEntryData.handlerEnd;
+    entry.eventHandlersEnd = newEntryData.eventHandlersEnd;
+    entry.duration = newEntryData.duration;
     return entry;
   }
 
   const originalAddEventListener = EventTarget.prototype.addEventListener;
   EventTarget.prototype.addEventListener = function(type, f, args) {
     originalAddEventListener.call(this, type, (e) => {
-      const handlersStart = performance.now();
+      const eventHandlersBegin = performance.now();
       f(e);
+      const eventHandlerEnd = performance.now();
       const entry = {
         name: type,
         entryType: 'event',
-        startTime: handlersStart,
-        eventDispatchTime: e.timeStamp,
-        handlerEnd: performance.now()
+        startTime: e.timeStamp,
+        eventHandlersBegin: eventHandlersBegin,
+        eventHandlersEnd: eventHandlerEnd,
+        duration: eventHandlerEnd - e.timeStamp,
+        cancelable: event.cancelable,
       };
-      addEntry(e, entry);
+      addOrCoalesceEntry(e, entry);
     }, args);
   };
 })();

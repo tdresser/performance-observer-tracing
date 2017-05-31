@@ -17,9 +17,9 @@
 
     if (frameEntry) {
       frameEntry.withinFrameEntries = nonFrameEntries;
-      console.log(JSON.stringify(frameEntry, null, 2));
+//      console.log(JSON.stringify(frameEntry, null, 2));
     } else if (nonFrameEntries.length > 0) {
-      console.log(JSON.stringify(nonFrameEntries, null, 2));
+//      console.log(JSON.stringify(nonFrameEntries, null, 2));
     }
 
     pendingEntries = [];
