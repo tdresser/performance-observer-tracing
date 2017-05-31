@@ -10,8 +10,16 @@
 <script>
 window.addEventListener("load", function() {
   document.addEventListener("click", function() {
-    const now = performance.now();
-    while (performance.now() < now + 1000){}
+    let now = performance.now();
+
+    performance.mark("ClickAStart");
+    while (performance.now() < now + 500){}
+    performance.mark("ClickAEndBStart");
+    now = performance.now();
+    while (performance.now() < now + 500){}
+    performance.mark("ClickBEnd");
+    performance.measure("ClickA", "ClickAStart", "ClickAEndBStart");
+    performance.measure("ClickB", "ClickAEndBStart", "ClickBEnd");
   });
 
   document.addEventListener("mousemove", () => {});
@@ -23,7 +31,7 @@ function fetchResource() {
 
   var oReq = new XMLHttpRequest();
   //oReq.onload = reqListener;
-//  oReq.onerror = reqError;
+  //  oReq.onerror = reqError;
   oReq.open('get', 'http://thecatapi.com/api/images/get?format=src&type=gif', true);
   oReq.send();
 }

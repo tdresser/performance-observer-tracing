@@ -9,10 +9,10 @@
     for (const entry of list.getEntries()) {
       if (entry.entryType == "frame") {
         for (const [hash, eventEntry] of pendingEntries.entries()) {
-          if (eventEntry.handlerEnd < entry.startTime) {
+          if (eventEntry.eventHandlersEnd < entry.startTime) {
             // Event was before long frame. We won't dispatch this entry.
             continue;
-          } else if (entry.startTime + entry.duration < eventEntry.startTime) {
+          } else if (entry.startTime + entry.duration < eventEntry.eventHandlersBegin) {
             // Event was after long frame. Wait for the next long frame.
             continue;
           }
