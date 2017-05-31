@@ -17,10 +17,33 @@
   const currentTrace = [];
 
   let id = 0;
+  let bind_id = 0;
 
   function handleEventEntry(entry) {
+    const flowEventStart = {
+      name: entry.name + '::event queueing time',
+      ph: "X",
+      dur: 0,
+      pid: "Input",
+      cat: entry.entryType,
+      bind_id: "0x" + bind_id.toString(16),
+      ts: entry.startTime * 1000,
+      flow_out: true,
+    };
+
+    const flowEventEnd = {
+      name: entry.name + '::' + entry.entryType,
+      ph: "X",
+      dur: 0,
+      pid: "Input",
+      cat: entry.entryType,
+      bind_id: "0x" + bind_id.toString(16),
+      ts: entry.eventHandlersEnd * 1000,
+      flow_in: true,
+    };
+
     const traceEvent = {
-      name: entry.name + '::' + 'event queueing time',
+      name: entry.name + '::event queueing time',
       cat: entry.entryType,
       pid:'Input',
       ts: entry.startTime * 1000,
@@ -28,10 +51,8 @@
       id: '0x' + id.toString(16),
     };
 
-    currentTrace.push(traceEvent);
-
     const traceEventEnd = {
-      name: 'event queueing time::' + entry.name,
+      name: entry.name + '::event queueing time',
       cat: entry.entryType,
       pid:'Input',
       ts: entry.eventHandlersBegin * 1000,
@@ -40,6 +61,10 @@
     };
 
     id++;
+    bind_id++;
+    currentTrace.push(flowEventStart);
+    currentTrace.push(flowEventEnd);
+    currentTrace.push(traceEvent);
     currentTrace.push(traceEventEnd);
   }
 
