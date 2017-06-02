@@ -1,13 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="performance_timeline_emit.js"></script>
-<script src="styleupdate_timing.js"></script>
-<script src="frame_timing.js"></script>
-<script src="event_timing.js"></script>
-<script src="input_latency_monitor.js"></script>
 <script src="performance_observer_tracing.js"></script>
 <script>
+
+function download(filename, text) {
+  const blob = new Blob([text], {type: 'text/plain'});
+
+  var element = document.createElement('a');
+  element.setAttribute('href', window.URL.createObjectURL(blob));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
+
+function downloadTrace() {
+  download('performance_observer_trace.json',
+           JSON.stringify(window.getPerformanceObserverTrace()));
+}
+
 window.addEventListener("load", function() {
   document.addEventListener("click", function() {
     let now = performance.now();
@@ -21,14 +35,9 @@ window.addEventListener("load", function() {
     performance.measure("ClickA", "ClickAStart", "ClickAEndBStart");
     performance.measure("ClickB", "ClickAEndBStart", "ClickBEnd");
   });
-
-  document.addEventListener("mousemove", () => {});
 });
 
 function fetchResource() {
-  function dummy() {
-  }
-
   var oReq = new XMLHttpRequest();
   oReq.open('get', 'https://thecatapi.com/api/images/get?format=src&type=gif', true);
   oReq.send();
