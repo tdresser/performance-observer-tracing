@@ -72,7 +72,41 @@
     'measure'
   ]});
 
-  window.getPerformanceObserverTrace = function() {
-    return currentTrace;
+
+  /**
+   * Downloads a file using a[download].
+   * @param {!string} jsonStr string of JSON to save
+   */
+  function saveFile(jsonStr) {
+    const blob = new Blob([jsonStr], {type: 'application/json'});
+    const filename = `${document.location.host}_${new Date().toISOString()}.trace.json`
+        // Replace characters that are unfriendly to filenames
+        .replace(/[/?<>:*|"]/g, '-');
+    const href = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.download = filename;
+    a.href = href;
+    document.body.appendChild(a); // Firefox requires anchor to be in the DOM.
+    a.click();
+
+    // Cleanup
+    document.body.removeChild(a);
+    setTimeout(_ => URL.revokeObjectURL(href), 500);
   }
+
+  window.getPerformanceObserverTraceEvents = function() {
+    return currentTrace;
+  };
+
+  window.getPerformanceObserverTrace = function() {
+    return `
+{ "traceEvents": [
+  ${currentTrace.map(evt => JSON.stringify(evt)).join(',\n')}
+]}`;
+  };
+
+  window.downloadPerformanceObserverTrace = function() {
+    saveFile(window.getPerformanceObserverTrace());
+  }
+
 })();
